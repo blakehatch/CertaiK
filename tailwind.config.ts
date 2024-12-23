@@ -24,13 +24,13 @@ export default {
             width: "0px",
           },
           "33.33%": {
-            width: "8px",
+            width: "10px",
           },
           "66.66%": {
-            width: "16px",
+            width: "20px",
           },
           "100%": {
-            width: "24px",
+            width: "30px",
           },
         },
       },

@@ -36,59 +36,62 @@ export function ResultsStep({
   const removeComments = (report: string): string => {
     report = report.replace(/\/\/.*$/gm, "");
     report = report.replace(/\/\*[\s\S]*?\*\//g, "");
+    report = report
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .join("\n");
     return report;
   };
 
   useEffect(() => {
-    if (state.length) return;
+    if (state.length || loading) return;
     setLoading(true);
     const cleanedFileContent = removeComments(contractContent || "");
-    fetch("/api/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: cleanedFileContent, prompt: promptContent }),
-      signal: AbortSignal.timeout(600000),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(response.statusText);
+
+    const fetchStream = async () => {
+      const response = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: cleanedFileContent, prompt: promptContent }),
+        signal: AbortSignal.timeout(600000),
+      });
+
+      if (!response.ok) {
+        console.log("ERROR", response.statusText);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      while (reader) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
         }
-        return response.json();
-      })
-      .then((result) => {
-        console.log(result);
-        const report = JSON.parse(result);
-        setAuditContent(report);
-      })
-      .catch((error) => {
-        console.log(error);
-        setAuditContent("");
-      })
-      .finally(() => setLoading(false));
+        const chunk = decoder.decode(value, { stream: true });
+        setAuditContent((prev) => prev + chunk);
+      }
+      setLoading(false);
+    };
+    try {
+      fetchStream();
+    } catch (error) {
+      console.log(error);
+    }
   }, [state]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [history]);
+  }, [auditContent]);
 
   const handleSubmit = () => {};
 
   return (
     <>
       <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm">
-        {loading && (
-          <div>
-            <p>
-              Loading
-              <span className="animate-loading-dots inline-block overflow-x-hidden align-bottom">
-                ...
-              </span>
-            </p>
-            <p>(this can take up to a minute)</p>
-          </div>
-        )}
         {auditContent && <ReactMarkdown className="overflow-scroll">{auditContent}</ReactMarkdown>}
       </div>
       <TerminalInputBar
@@ -96,6 +99,7 @@ export function ResultsStep({
         onChange={(value: string) => {}}
         disabled={true}
         value={""}
+        overrideLoading={loading}
       />
     </>
   );

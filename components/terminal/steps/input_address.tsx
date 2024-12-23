@@ -18,6 +18,7 @@ export function AddressStep({
   state,
 }: TerminalProps) {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [history, setHistory] = useState<MessageType[]>(state);
 
@@ -46,13 +47,7 @@ export function AddressStep({
       return;
     }
 
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: Message.ASSISTANT,
-        content: "Loading...",
-      },
-    ]);
+    setLoading(true);
 
     fetch(`/api/scan?address=${encodeURIComponent(input)}`)
       .then((response) => {
@@ -89,7 +84,10 @@ export function AddressStep({
           },
         ]);
       })
-      .finally(() => setInput(""));
+      .finally(() => {
+        setInput("");
+        setLoading(false);
+      });
   };
 
   const handleValidate = () => {
@@ -176,6 +174,7 @@ export function AddressStep({
         onChange={(value: string) => setInput(value)}
         disabled={false}
         value={input}
+        overrideLoading={loading}
       />
     </>
   );

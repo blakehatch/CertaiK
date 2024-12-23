@@ -32,6 +32,12 @@ export default function AuditPage() {
   const removeComments = (report: string): string => {
     report = report.replace(/\/\/.*$/gm, "");
     report = report.replace(/\/\*[\s\S]*?\*\//g, "");
+    report = report
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .join("\n");
+
     return report;
   };
 
