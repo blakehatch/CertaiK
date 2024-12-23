@@ -41,7 +41,7 @@ body {
   }
 }
 
-@layer components {
+/* @layer components {
   input,
   textarea {
     @apply bg-black rounded-md outline outline-1 outline-zinc-200 px-3 py-2 transition-colors focus-visible:outline-zinc-100/80 focus-visible:outline-2
@@ -56,4 +56,4 @@ body {
   textarea::disabled {
     @apply cursor-not-allowed opacity-50
   }
-}
+} */

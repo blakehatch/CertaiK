@@ -1,0 +1,15 @@
+export enum TerminalStep {
+  INITIAL = "INITIAL",
+  INPUT_ADDRESS = "INPUT_ADDRESS",
+  INPUT_UPLOAD = "INPUT_UPLOAD",
+  INPUT_PASTE = "INPUT_PASTE",
+  AUDIT_TYPE = "AUDIT_TYPE",
+  RESULTS = "RESULTS",
+}
+
+export enum Message {
+  SYSTEM = "SYSTEM",
+  ASSISTANT = "ASSISTANT",
+  USER = "USER",
+  ERROR = "ERROR",
+}
