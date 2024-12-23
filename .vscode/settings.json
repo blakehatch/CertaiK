@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.trailingComma": "all",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }
+}
