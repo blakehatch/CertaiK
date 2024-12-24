@@ -3,6 +3,7 @@
 import { AuditTypeStep } from "@/components/terminal/steps/audit_type";
 import { InitialStep } from "@/components/terminal/steps/initial";
 import { AddressStep } from "@/components/terminal/steps/input_address";
+import { PasteStep } from "@/components/terminal/steps/input_paste";
 import { UploadStep } from "@/components/terminal/steps/input_upload";
 import { ResultsStep } from "@/components/terminal/steps/results";
 import { cn } from "@/lib/utils";
@@ -54,6 +55,14 @@ export default function TerminalAuditPage() {
               setTerminalStep={setTerminalStep}
               handleGlobalState={handleGlobalState}
               state={terminalState[TerminalStep.INPUT_UPLOAD]}
+              setContractContent={setContractContent}
+            />
+          )}
+          {terminalStep == TerminalStep.INPUT_PASTE && (
+            <PasteStep
+              setTerminalStep={setTerminalStep}
+              handleGlobalState={handleGlobalState}
+              state={terminalState[TerminalStep.INPUT_PASTE]}
               setContractContent={setContractContent}
             />
           )}

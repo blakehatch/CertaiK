@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import React from "react";
+import { Button } from "../ui/button";
 
 interface InputBarProps {
   value: string;
@@ -7,47 +8,42 @@ interface InputBarProps {
   onSubmit: (e: React.FormEvent) => void;
   disabled?: boolean;
   overrideLoading?: boolean;
-  placeholder?: string;
 }
 
-const TerminalInputBar: React.FC<InputBarProps> = ({
+const TerminalTextArea: React.FC<InputBarProps> = ({
   value,
   onChange,
   onSubmit,
   disabled,
   overrideLoading,
-  placeholder,
 }) => {
   return (
     <form onSubmit={onSubmit} className="mt-4 flex items-center relative">
-      <span className="text-green-400 mr-2">{">"}</span>
-      <input
+      <span className="text-green-400 mr-2 self-start">{">"}</span>
+      <textarea
         autoFocus={true}
-        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled || overrideLoading}
         className={cn(
-          "flex-1 bg-transparent border-none outline-none",
+          "flex-1 bg-transparent border-none outline-none h-[500px] resize-none w-full pb-12",
           "text-white font-mono",
           "placeholder:text-gray-500",
           "caret-green-400",
           disabled && "cursor-not-allowed opacity-50",
         )}
-        placeholder={overrideLoading ? "" : !!placeholder ? placeholder : "Type your command..."}
+        placeholder={!overrideLoading ? "Input your code..." : ""}
       />
-      {overrideLoading && (
-        <div className="absolute left-5 font-mono text-gray-500 pointer-events-none">
-          <p>
-            Loading
-            <span className="animate-loading-dots inline-block overflow-x-hidden align-bottom">
-              ...
-            </span>
-          </p>
-        </div>
-      )}
+      <Button
+        variant="bright"
+        className="w-full self-end absolute bottom-0"
+        type="submit"
+        disabled={!value}
+      >
+        Submit
+      </Button>
     </form>
   );
 };
 
-export default TerminalInputBar;
+export default TerminalTextArea;

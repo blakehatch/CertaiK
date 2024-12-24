@@ -100,6 +100,7 @@ export function ResultsStep({
         disabled={true}
         value={""}
         overrideLoading={loading}
+        placeholder="Chat feature coming soon..."
       />
     </>
   );

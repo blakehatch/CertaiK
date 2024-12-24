@@ -14,7 +14,12 @@ export const initialState = {
       content: "Input a contract address to get started",
     },
   ],
-  [TerminalStep.INPUT_PASTE]: [],
+  [TerminalStep.INPUT_PASTE]: [
+    {
+      type: Message.SYSTEM,
+      content: "Type or paste your smart contract",
+    },
+  ],
   [TerminalStep.INPUT_UPLOAD]: [
     {
       type: Message.SYSTEM,

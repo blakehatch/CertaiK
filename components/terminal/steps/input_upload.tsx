@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import { Message, TerminalStep } from "@/utils/enums";
 import { MessageType } from "@/utils/types";
 import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { FileDropZone } from "../file-drop-zone";
 import TerminalInputBar from "../input-bar";
-import { FileDropZone } from "./file-drop-zone";
 
 type TerminalProps = {
   setTerminalStep: Dispatch<SetStateAction<TerminalStep>>;
@@ -19,9 +19,7 @@ export function UploadStep({
   state,
 }: TerminalProps) {
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const [uploadAvailable, setUploadAvailable] = useState(true);
-  const [step, setStep] = useState(0);
   const [history, setHistory] = useState<MessageType[]>(state);
 
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -50,7 +48,6 @@ export function UploadStep({
         content: "Does this look right? (y/n)",
       },
     ]);
-    setStep(1);
   };
 
   const handleValidate = () => {
@@ -69,13 +66,12 @@ export function UploadStep({
     switch (l) {
       case "y": {
         setInput("");
-        handleGlobalState(TerminalStep.INPUT_ADDRESS, history);
+        handleGlobalState(TerminalStep.INPUT_UPLOAD, history);
         setTerminalStep(TerminalStep.AUDIT_TYPE);
         break;
       }
       case "n": {
         setInput("");
-        setStep(0);
         setHistory((prev) => [
           ...prev,
           {
@@ -135,7 +131,6 @@ export function UploadStep({
         onChange={(value: string) => setInput(value)}
         disabled={uploadAvailable}
         value={input}
-        overrideLoading={loading}
       />
     </>
   );
