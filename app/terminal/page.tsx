@@ -3,6 +3,7 @@
 import { AuditTypeStep } from "@/components/terminal/steps/audit_type";
 import { InitialStep } from "@/components/terminal/steps/initial";
 import { AddressStep } from "@/components/terminal/steps/input_address";
+import { UploadStep } from "@/components/terminal/steps/input_upload";
 import { ResultsStep } from "@/components/terminal/steps/results";
 import { cn } from "@/lib/utils";
 import { TerminalStep } from "@/utils/enums";
@@ -22,8 +23,6 @@ export default function TerminalAuditPage() {
   const handleGlobalState = (step: TerminalStep, history: MessageType[]) => {
     setTerminalState((prev) => ({ ...prev, [step]: history }));
   };
-
-  console.log(terminalStep);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -47,6 +46,14 @@ export default function TerminalAuditPage() {
               setTerminalStep={setTerminalStep}
               handleGlobalState={handleGlobalState}
               state={terminalState[TerminalStep.INPUT_ADDRESS]}
+              setContractContent={setContractContent}
+            />
+          )}
+          {terminalStep == TerminalStep.INPUT_UPLOAD && (
+            <UploadStep
+              setTerminalStep={setTerminalStep}
+              handleGlobalState={handleGlobalState}
+              state={terminalState[TerminalStep.INPUT_UPLOAD]}
               setContractContent={setContractContent}
             />
           )}

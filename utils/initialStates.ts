@@ -15,7 +15,12 @@ export const initialState = {
     },
   ],
   [TerminalStep.INPUT_PASTE]: [],
-  [TerminalStep.INPUT_UPLOAD]: [],
+  [TerminalStep.INPUT_UPLOAD]: [
+    {
+      type: Message.SYSTEM,
+      content: "Drag + Drop, or press below, to upload a .sol or .rs file",
+    },
+  ],
   [TerminalStep.AUDIT_TYPE]: [
     {
       type: Message.SYSTEM,

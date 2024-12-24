@@ -157,7 +157,7 @@ export function AddressStep({
           <div
             key={i}
             className={cn(
-              "mb-2 leading-relaxed whitespace-pre-line",
+              "mb-2 leading-relaxed whitespace-pre",
               message.type === Message.SYSTEM && "text-blue-400",
               message.type === Message.USER && "text-green-400",
               message.type === Message.ERROR && "text-red-400",
