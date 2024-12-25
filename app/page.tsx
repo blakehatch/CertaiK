@@ -1,155 +1,187 @@
 "use client";
 
-import AdvancedOptionsModal from "@/components/advanced-options";
-import AuditModal from "@/components/audit-modal";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-
-import SourceCodeInput from "@/components/ca-to-source-code";
-import StolenMoneyTracker from "@/components/stolen-money";
+import { AuditTypeStep } from "@/components/terminal/steps/audit_type";
+import { InitialStep } from "@/components/terminal/steps/initial";
+import { AddressStep } from "@/components/terminal/steps/input_address";
+import { PasteStep } from "@/components/terminal/steps/input_paste";
+import { UploadStep } from "@/components/terminal/steps/input_upload";
+import { ResultsStep } from "@/components/terminal/steps/results";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import auditPromptText from "@/utils/prompts/security";
+import { stepText } from "@/utils/constants";
+import { TerminalStep } from "@/utils/enums";
+import { initialState } from "@/utils/initialStates";
+import { MessageType } from "@/utils/types";
+import { useState } from "react";
 
-export default function AuditPage() {
-  const [fileContent, setFileContent] = useState<string | null>(null);
-  const [auditMarkdown, setAuditMarkdown] = useState<string | null>(null);
-  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
-  const [advancedOptions, setShowAdvancedOptions] = useState<boolean>(false);
-  const [auditPrompt, setAuditPrompt] = useState<string>(auditPromptText);
+export default function TerminalAuditPage() {
+  const [terminalStep, setTerminalStep] = useState<TerminalStep>(TerminalStep.INITIAL);
+  const [contractContent, setContractContent] = useState<string>("");
+  const [promptContent, setPromptContent] = useState<string>("");
+  const [auditContent, setAuditContent] = useState<string>("");
+  const [terminalState, setTerminalState] =
+    useState<Record<TerminalStep, MessageType[]>>(initialState);
+  const [stack, setStack] = useState<TerminalStep[]>([TerminalStep.INITIAL]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFileContent(e.target?.result as string);
-      };
-      reader.readAsText(file);
+  const handleGlobalStep = (step: TerminalStep) => {
+    setStack((prev) => [...prev, step]);
+    setTerminalStep(step);
+  };
+
+  const handleGlobalState = (step: TerminalStep, history: MessageType[]) => {
+    setTerminalState((prev) => ({ ...prev, [step]: history }));
+  };
+
+  const handleDownload = () => {
+    if (!(terminalStep === TerminalStep.RESULTS && auditContent)) return;
+    const blob = new Blob([auditContent], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "audit-report.md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRewind = (s: TerminalStep) => {
+    // if going back, need to reset state for proceeding steps
+    let interStack = stack;
+    const interState = terminalState;
+
+    let shouldResetAudit = true; // result doesnt get added to stack for now, always true
+    let shouldResetContract = false;
+    let poppedElement = interStack.pop();
+
+    while (poppedElement !== s) {
+      if (
+        [TerminalStep.INPUT_UPLOAD, TerminalStep.INPUT_ADDRESS, TerminalStep.INPUT_PASTE].includes(
+          poppedElement as TerminalStep,
+        )
+      ) {
+        shouldResetContract = true;
+      }
+      interState[poppedElement as TerminalStep] = initialState[poppedElement as TerminalStep];
+      poppedElement = interStack.pop();
     }
-  };
-
-  const removeComments = (report: string): string => {
-    report = report.replace(/\/\/.*$/gm, "");
-    report = report.replace(/\/\*[\s\S]*?\*\//g, "");
-    report = report
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line !== "")
-      .join("\n");
-
-    return report;
-  };
-
-  const handleSubmitAudit = async () => {
-    setIsButtonDisabled(true);
-
-    const cleanedFileContent = removeComments(fileContent || "");
-
-    const response = await fetch("/api/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: cleanedFileContent, prompt: auditPrompt }),
-      signal: AbortSignal.timeout(600000),
-    });
-
-    if (response.ok) {
-      const responseData = await response.json();
-
-      const auditReport = JSON.parse(responseData);
-      setAuditMarkdown(auditReport);
-      console.log("Audit request sent successfully");
-    } else {
-      console.error("Failed to send audit request");
-      setIsButtonDisabled(false);
+    setTerminalState(interState);
+    setStack(interStack.concat(s));
+    setTerminalStep(s);
+    if (shouldResetAudit) {
+      setAuditContent("");
     }
-  };
-
-  const handleCloseModal = () => {
-    setAuditMarkdown(null);
-    setShowAdvancedOptions(false);
-    setIsButtonDisabled(false);
+    if (shouldResetContract) {
+      setContractContent("");
+    }
   };
 
   return (
-    <main className="min-h-screen bg-black text-white overflow-hidden">
-      <div className="relative mt-32 px-4 z-10">
-        <h1 className="text-5xl text-center mt-4 mb-10 text-white">Smart Contract Auditor AI</h1>
-        <div className="flex flex-col items-center">
-          <label
+    <main className="h-screen w-screen bg-black text-white z-[1]">
+      <div className="relative px-4 py-24 z-10 size-full flex flex-col items-center justify-center">
+        <div
+          className={cn(
+            "bg-black/90 border border-gray-800 rounded-lg p-4",
+            "flex flex-row w-full h-full max-w-[1200px] max-h-[600px]",
+          )}
+        >
+          <div className="flex flex-col w-full h-full flex-1 no-scrollbar">
+            {terminalStep == TerminalStep.INITIAL && (
+              <InitialStep
+                setTerminalStep={handleGlobalStep}
+                handleGlobalState={handleGlobalState}
+                state={terminalState[TerminalStep.INITIAL]}
+              />
+            )}
+            {terminalStep == TerminalStep.INPUT_ADDRESS && (
+              <AddressStep
+                setTerminalStep={handleGlobalStep}
+                handleGlobalState={handleGlobalState}
+                state={terminalState[TerminalStep.INPUT_ADDRESS]}
+                setContractContent={setContractContent}
+              />
+            )}
+            {terminalStep == TerminalStep.INPUT_UPLOAD && (
+              <UploadStep
+                setTerminalStep={handleGlobalStep}
+                handleGlobalState={handleGlobalState}
+                state={terminalState[TerminalStep.INPUT_UPLOAD]}
+                setContractContent={setContractContent}
+              />
+            )}
+            {terminalStep == TerminalStep.INPUT_PASTE && (
+              <PasteStep
+                setTerminalStep={handleGlobalStep}
+                handleGlobalState={handleGlobalState}
+                state={terminalState[TerminalStep.INPUT_PASTE]}
+                setContractContent={setContractContent}
+              />
+            )}
+            {terminalStep == TerminalStep.AUDIT_TYPE && (
+              <AuditTypeStep
+                setTerminalStep={handleGlobalStep}
+                handleGlobalState={handleGlobalState}
+                state={terminalState[TerminalStep.AUDIT_TYPE]}
+                setPromptContent={setPromptContent}
+                promptContent={promptContent}
+              />
+            )}
+            {terminalStep == TerminalStep.RESULTS && (
+              <ResultsStep
+                state={terminalState[TerminalStep.RESULTS]}
+                setAuditContent={setAuditContent}
+                contractContent={contractContent}
+                promptContent={promptContent}
+              />
+            )}
+          </div>
+          <div
             className={cn(
-              "flex items-center justify-center text-md py-2 px-5",
-              "mb-10 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-md cursor-pointer",
-              "hover:opacity-80 transition-opacity",
+              "hidden flex-col justify-between gap-1 border-l-[1px] border-l-gray-500 pl-2 ml-2",
+              "md:flex",
             )}
           >
-            <span>Upload .sol or .rs file</span>
-            <input type="file" accept=".sol,.rs" onChange={handleFileUpload} className="hidden" />
-          </label>
-          <SourceCodeInput setSourceCode={setFileContent} />
-          <Textarea
-            placeholder="Paste Solidity or Rust code here..."
-            className="text-white bg-black z-10 h-48 max-w-[800px] w-full rounded mb-6"
-            onChange={(e) => setFileContent(e.target.value)}
-          />
-          <p className="text-xs text-gray-400 z-10 mb-2 max-w-[600px]">
-            *Experimental feature: AI agent{" "}
-            <a href="https://twitter.com/CertaiK_Agent" className="text-cyan-400 underline">
-              CertaiK
-            </a>{" "}
-            audits your code. Manually review results and provide feedback.
-          </p>
-          <div className="flex items-center z-10 space-x-3 mt-4">
-            <Button
-              variant="bright"
-              onClick={handleSubmitAudit}
-              disabled={isButtonDisabled || !fileContent}
-            >
-              {isButtonDisabled ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    ></path>
-                  </svg>
-                  <span>Processing...</span>
+            <div>
+              <div className="text-gray-500">Go back to:</div>
+              {stack.map((s) => (
+                <div
+                  key={s}
+                  className={cn(
+                    "relative w-fit",
+                    s !== terminalStep && "cursor-pointer hover:opacity-80 transition-opacity",
+                    s === terminalStep && "cursor-default pointer-events-none opacity-80",
+                  )}
+                  onClick={() => handleRewind(s)}
+                >
+                  {stepText[s]}
+                  {s === terminalStep && (
+                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 bg-green-500 w-1 h-1 rounded-full" />
+                  )}
                 </div>
-              ) : (
-                "Generate Audit"
+              ))}
+            </div>
+            <div
+              className={cn(
+                "flex justify-start cursor-pointer w-full max-w-[900px]",
+                terminalStep === TerminalStep.RESULTS && auditContent ? "visible" : "invisible",
               )}
-            </Button>
-            <Button onClick={() => setShowAdvancedOptions(true)} variant="dark">
-              Advanced Options
-            </Button>
+            >
+              <Button onClick={handleDownload} variant="bright" className="w-fit" type="submit">
+                Download Report
+              </Button>
+            </div>
           </div>
-          <div className="mt-8">
-            <StolenMoneyTracker />
-          </div>
-          {auditMarkdown && <AuditModal auditMarkdown={auditMarkdown} onClose={handleCloseModal} />}
-          {advancedOptions && (
-            <AdvancedOptionsModal
-              setPromptText={setAuditPrompt}
-              promptText={auditPrompt}
-              onClose={() => setShowAdvancedOptions(false)}
-            />
+        </div>
+        <div
+          className={cn(
+            "flex justify-start cursor-pointer w-full max-w-[900px] mt-2",
+            terminalStep === TerminalStep.RESULTS && auditContent ? "visible" : "invisible",
+            "md:hidden",
           )}
-          {fileContent && (
-            <pre className="bg-gray-800/50 p-4 mt-8 mb-16 rounded-lg text-white max-w-4xl w-full overflow-auto">
-              {fileContent}
-            </pre>
-          )}
+        >
+          <Button onClick={handleDownload} variant="bright" className="w-fit" type="submit">
+            Download Report
+          </Button>
         </div>
       </div>
     </main>

@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import { Message, TerminalStep } from "@/utils/enums";
 import { MessageType } from "@/utils/types";
-import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import TerminalInputBar from "../input-bar";
 
 type TerminalProps = {
-  setTerminalStep: Dispatch<SetStateAction<TerminalStep>>;
+  setTerminalStep: (step: TerminalStep) => void;
   handleGlobalState: (step: TerminalStep, history: MessageType[]) => void;
   state: MessageType[];
 };
@@ -60,7 +60,7 @@ export function InitialStep({ setTerminalStep, handleGlobalState, state }: Termi
 
   return (
     <>
-      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm">
+      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
         {history.map((message, i) => (
           <div
             key={i}

@@ -5,7 +5,7 @@ import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from
 import TerminalInputBar from "../input-bar";
 
 type TerminalProps = {
-  setTerminalStep: Dispatch<SetStateAction<TerminalStep>>;
+  setTerminalStep: (step: TerminalStep) => void;
   setContractContent: Dispatch<SetStateAction<string>>;
   handleGlobalState: (step: TerminalStep, history: MessageType[]) => void;
   state: MessageType[];
@@ -152,12 +152,12 @@ export function AddressStep({
 
   return (
     <>
-      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm">
+      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
         {history.map((message, i) => (
           <div
             key={i}
             className={cn(
-              "mb-2 leading-relaxed whitespace-pre",
+              "mb-2 leading-relaxed whitespace-pre-wrap",
               message.type === Message.SYSTEM && "text-blue-400",
               message.type === Message.USER && "text-green-400",
               message.type === Message.ERROR && "text-red-400",

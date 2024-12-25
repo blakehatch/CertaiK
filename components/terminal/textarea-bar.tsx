@@ -18,7 +18,7 @@ const TerminalTextArea: React.FC<InputBarProps> = ({
   overrideLoading,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="mt-4 flex items-center relative">
+    <form onSubmit={onSubmit} className="mt-4 flex items-center relative flex-1">
       <span className="text-green-400 mr-2 self-start">{">"}</span>
       <textarea
         autoFocus={true}
@@ -26,7 +26,7 @@ const TerminalTextArea: React.FC<InputBarProps> = ({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled || overrideLoading}
         className={cn(
-          "flex-1 bg-transparent border-none outline-none h-[500px] resize-none w-full pb-12",
+          "flex-1 bg-transparent border-none outline-none h-full resize-none w-full pb-12",
           "text-white font-mono",
           "placeholder:text-gray-500",
           "caret-green-400",

@@ -1,14 +1,14 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: 'bright' | 'dark';
+  variant: "bright" | "dark";
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
   const { type, className, variant, disabled, children, ...rest } = props;
-  const isBright = variant === 'bright';
+  const isBright = variant === "bright";
   return (
     <button
       type={type}
@@ -18,14 +18,16 @@ const Button: React.FC<ButtonProps> = (props) => {
         isBright && "from-cyan-500 to-purple-500",
         !isBright && "from-gray-500 to-gray-700",
         disabled && "opacity-50 cursor-not-allowed",
-        !disabled && "hover:opacity-80 transition-opacity",
-        className
+        !disabled && "hover:opacity-80 transition-opacity cursor-pointer",
+        className,
       )}
       disabled={disabled}
       {...rest}
-    >{children}</button>
-  )
-}
-Button.displayName = "Input"
+    >
+      {children}
+    </button>
+  );
+};
+Button.displayName = "Input";
 
-export { Button }
+export { Button };

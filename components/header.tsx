@@ -1,27 +1,17 @@
-"use client";
-
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Fuel, FileLock2 } from 'lucide-react';
+import Link from "next/link";
+import React from "react";
 
 const Header: React.FC = () => {
-  const [activeLink, setActiveLink] = useState<string>('/');
-
   return (
-    <header className="fixed top-4 left-0 w-full text-white text-center py-1 z-50 backdrop-blur-md bg-opacity-30 flex justify-start items-center space-x-8">
-      <div className="cursor-pointer ml-4" onClick={() => window.open('https://www.certaik.xyz', '_blank', 'noopener,noreferrer')}>
+    <header className="w-full flex justify-start items-center text-white absolute top-0 left-0 z-10">
+      <Link
+        className="cursor-pointer m-4"
+        href="https://www.certaik.xyz"
+        target="_blank"
+        referrerPolicy="no-referrer"
+      >
         <img src="/logo.svg" alt="Logo" className="h-16 w-auto" />
-      </div>
-      <nav className="flex space-x-16">
-        <Link href="/" className={`flex items-center space-x-2 ${activeLink === '/' ? 'text-white font-bold' : 'text-white hover:underline'}`} onClick={() => setActiveLink('/')}>
-          <FileLock2 className="text-white" />
-          <span>Security Audit</span>
-        </Link>
-        <Link href="/gas-optimizer" className={`flex items-center space-x-2 ${activeLink === '/gas-optimizer' ? 'text-white font-bold' : 'text-white hover:underline'}`} onClick={() => setActiveLink('/gas-optimizer')}>
-          <Fuel className="text-white" />
-          <span>Gas Audit</span>
-        </Link>
-      </nav>
+      </Link>
     </header>
   );
 };

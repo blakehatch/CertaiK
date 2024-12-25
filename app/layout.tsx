@@ -1,9 +1,10 @@
+import Footer from "@/components/footer";
+import Header from "@/components/header";
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/header";
 
-const figtree = Figtree({ subsets: ['latin'] })
+const figtree = Figtree({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "CertaiK",
@@ -17,11 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${figtree.className} antialiased`}
-      >
-        <Header/>  
+      <body className={`${figtree.className} antialiased`}>
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

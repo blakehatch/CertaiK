@@ -1,29 +1,23 @@
-import { TerminalStep } from "@/utils/enums";
 import { MessageType } from "@/utils/types";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import TerminalInputBar from "../input-bar";
 
 type TerminalProps = {
-  setTerminalStep: Dispatch<SetStateAction<TerminalStep>>;
   setAuditContent: Dispatch<SetStateAction<string>>;
-  handleGlobalState: (step: TerminalStep, history: MessageType[]) => void;
   contractContent: string;
   promptContent: string;
-  auditContent: string;
   state: MessageType[];
 };
 
 export function ResultsStep({
-  setTerminalStep,
-  handleGlobalState,
   setAuditContent,
   contractContent,
   promptContent,
-  auditContent,
   state,
 }: TerminalProps) {
   const [loading, setLoading] = useState(false);
+  const [streamedAudit, setStreamedAudit] = useState("");
 
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +43,7 @@ export function ResultsStep({
     setLoading(true);
     const cleanedFileContent = removeComments(contractContent || "");
 
+    let streamedChunks = "";
     const fetchStream = async () => {
       const response = await fetch("/api/ai", {
         method: "POST",
@@ -72,9 +67,12 @@ export function ResultsStep({
           break;
         }
         const chunk = decoder.decode(value, { stream: true });
-        setAuditContent((prev) => prev + chunk);
+        streamedChunks += chunk;
+        setStreamedAudit(streamedChunks);
       }
       setLoading(false);
+      // store this in a separate variable so we can access it outside of state.
+      setAuditContent(streamedChunks);
     };
     try {
       fetchStream();
@@ -85,14 +83,16 @@ export function ResultsStep({
 
   useEffect(() => {
     scrollToBottom();
-  }, [auditContent]);
+  }, [streamedAudit]);
 
   const handleSubmit = () => {};
 
   return (
     <>
-      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm">
-        {auditContent && <ReactMarkdown className="overflow-scroll">{auditContent}</ReactMarkdown>}
+      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
+        {streamedAudit && (
+          <ReactMarkdown className="overflow-scroll no-scrollbar">{streamedAudit}</ReactMarkdown>
+        )}
       </div>
       <TerminalInputBar
         onSubmit={handleSubmit}

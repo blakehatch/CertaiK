@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Figtree', sans-serif;
+  font-family: "Figtree", sans-serif;
 }
 
 @layer base {
@@ -23,7 +23,7 @@ body {
     inset: 0;
     background-position: center;
     background-size: cover;
-    background-image: url('/bg-pattern.webp');
+    background-image: url("/bg-pattern.webp");
   }
 
   main::after {
@@ -41,19 +41,14 @@ body {
   }
 }
 
-/* @layer components {
-  input,
-  textarea {
-    @apply bg-black rounded-md outline outline-1 outline-zinc-200 px-3 py-2 transition-colors focus-visible:outline-zinc-100/80 focus-visible:outline-2
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
-
-  input::placeholder,
-  textarea::placeholder {
-    @apply text-zinc-500
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
-
-  input::disabled,
-  textarea::disabled {
-    @apply cursor-not-allowed opacity-50
-  }
-} */
+}

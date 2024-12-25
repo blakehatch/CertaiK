@@ -9,7 +9,7 @@ import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from
 import TerminalInputBar from "../input-bar";
 
 type TerminalProps = {
-  setTerminalStep: Dispatch<SetStateAction<TerminalStep>>;
+  setTerminalStep: (step: TerminalStep) => void;
   handleGlobalState: (step: TerminalStep, history: MessageType[]) => void;
   setPromptContent: Dispatch<SetStateAction<string>>;
   promptContent: string;
@@ -24,7 +24,7 @@ export function AuditTypeStep({
   state,
 }: TerminalProps) {
   const [input, setInput] = useState("");
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(state.length === 1 ? 0 : 2);
   const [modalOpen, setModalOpen] = useState(false);
   const [history, setHistory] = useState<MessageType[]>(state);
 
@@ -190,7 +190,7 @@ export function AuditTypeStep({
 
   return (
     <>
-      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm">
+      <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
         {history.map((message, i) => (
           <div
             key={i}
