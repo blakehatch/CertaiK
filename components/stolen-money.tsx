@@ -8,7 +8,7 @@ const StolenMoneyTracker: React.FC = () => {
 
   return (
     <div className="text-white">
-      <h2 className="text-xl font-bold">Stolen On-Chain Funds to Date</h2>
+      <h2 className="font-bold">Stolen On-Chain Funds to Date</h2>
       <p className="mt-2 text-red-500">
         {`$${(stolenAmount * 12.6).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
       </p>
