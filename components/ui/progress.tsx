@@ -14,7 +14,7 @@ const Progress = React.forwardRef<
   // value will be represented in wei. Convert its progress based on some lower +
   // upper threshold
   const UPPER_THRESHOLD = 300;
-  const asPercent = ((value ?? 0) / UPPER_THRESHOLD) * 100;
+  const asPercent = Math.min(((value ?? 0) / UPPER_THRESHOLD) * 100, 100);
   return (
     <ProgressPrimitive.Root
       ref={ref}
