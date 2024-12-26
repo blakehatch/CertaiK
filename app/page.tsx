@@ -77,8 +77,8 @@ export default function TerminalAuditPage() {
   };
 
   return (
-    <main className="h-screen w-screen bg-black text-white z-[1]">
-      <div className="relative px-4 py-24 z-10 size-full flex flex-col items-center justify-center">
+    <main className="h-screen w-screen bg-black text-white z-1">
+      <div className="relative px-4 py-24 z-20 size-full flex flex-col items-center justify-center">
         <div
           className={cn(
             "bg-black/90 border border-gray-800 rounded-lg p-4",
@@ -137,25 +137,25 @@ export default function TerminalAuditPage() {
           </div>
           <div
             className={cn(
-              "hidden flex-col justify-between gap-1 border-l-[1px] border-l-gray-500 pl-2 ml-2",
+              "hidden flex-col z-1 justify-between gap-1 border-l-[1px] border-l-gray-500 pl-2 ml-2",
               "md:flex",
             )}
           >
-            <div>
-              <div className="text-gray-500">Go back to:</div>
+            <div className="z-10">
+              <div className="text-gray-500 z-1">Go back to:</div>
               {stack.map((s) => (
                 <div
                   key={s}
                   className={cn(
-                    "relative w-fit",
-                    s !== terminalStep && "cursor-pointer hover:opacity-80 transition-opacity",
-                    s === terminalStep && "cursor-default pointer-events-none opacity-80",
+                    "relative w-fit z-1",
+                    s !== terminalStep && "cursor-pointer hover:opacity-80 transition-opacity z-0",
+                    s === terminalStep && "cursor-default pointer-events-none opacity-80 z-0",
                   )}
                   onClick={() => handleRewind(s)}
                 >
                   {stepText[s]}
                   {s === terminalStep && (
-                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 bg-green-500 w-1 h-1 rounded-full" />
+                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 bg-green-500 w-1 h-1 z-1 rounded-full" />
                   )}
                 </div>
               ))}

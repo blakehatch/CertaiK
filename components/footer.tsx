@@ -28,22 +28,22 @@ const Footer: React.FC = () => {
   return (
     <footer
       className={cn(
-        "w-full justify-between items-center text-white absolute bottom-0 left-0 z-10 m-4 hidden",
+        "w-[95%] max-w-full justify-between items-center text-white absolute bottom-0 left-0 z-10 m-4 hidden",
         "md:flex",
       )}
     >
       <StolenMoneyTracker />
       <div className="w-72">
-        <span className="font-bold">Current Gas Price: </span>
+        <span className="font-bold z-0">Current Gas Price: </span>
         {!!gasPrice ? <span>{gasPrice.toFixed(4)} Gwei</span> : <span>loading...</span>}
-        <div className="flex items-center mt-2">
-          <span className="text-sm text-cyan-500 mr-2">Gas is cheap</span>
+        <div className="flex items-center mt-2 z-0">
+          <span className="text-sm text-cyan-500 mr-2 z-0">Gas is cheap</span>
           <Progress
             value={gasPrice}
             className="bg-gray-900 w-full"
-            indicatorClassName="bg-gradient-to-r from-cyan-50 to-cyan-500"
+            indicatorClassName="bg-gradient-to-r from-cyan-50 to-cyan-500 z-0"
           />
-          <span className="text-sm text-red-500 ml-2">Gas is expensive</span>
+          <span className="text-sm text-red-500 ml-2 z-0">Gas is expensive</span>
         </div>
       </div>
     </footer>
