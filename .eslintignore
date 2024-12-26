@@ -1,0 +1,7 @@
+dist
+*.d.ts
+node_modules
+.eslintrc.js
+next.config.js
+postcss.config.mjs
+tailwind.config.js

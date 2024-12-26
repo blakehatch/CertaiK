@@ -1,78 +1,72 @@
 // Import the necessary modules
-import { Readable } from 'stream';
+import { NextResponse } from "next/server";
 import Replicate from "replicate";
-import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 
-const replicate = new Replicate();
+const replicate = new Replicate({
+  auth: process.env["REPLICATE_API_KEY"],
+});
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-// Function to convert ReadableStream to string
-async function streamToString(stream: Readable): Promise<string> {
-  const chunks: Uint8Array[] = [];
-  for await (const chunk of stream) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks).toString('utf8');
+function iteratorToStream(iterator: any) {
+  return new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await iterator.next();
+      // console.log(value, done);
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value.toString());
+      }
+    },
+  });
 }
 
-// Function to call Replicate API
-async function callReplicateModel(prompt: string): Promise<string | undefined> {
-    try {
-        // Define the input for the model
-        const input = {
-            prompt: prompt,
-            max_new_tokens: 512,
-            prompt_template: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-        };
+const input = {
+  min_tokens: 512,
+  max_tokens: 3000,
+  system_prompt: "You are a helpful assistant, specializing in smart contract auditing",
+  prompt_template: `
+    <|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-        // Call the Replicate model
-        const output = await replicate.run("meta/meta-llama-3-70b-instruct", { input });
+    {system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
 
-        const outputString = Array.isArray(output) ? output.join("") : String(output);
-        console.log(outputString);
-        return outputString;
-    } catch (error) {
-        console.error("Error calling Replicate model:", error);
+    {prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+  `,
+};
+
+export async function POST(request: Request) {
+  if (request.method === "POST") {
+    const data = await request.json();
+    const { text, prompt } = data;
+    if (!text || !prompt) {
+      return NextResponse.json({ error: "Must provide input" }, { status: 400 });
     }
-}
-
-export async function POST(req: Request ) {
-  if (req.method === 'POST' && req.body !== null) {
-    // Convert the ReadableStream to a string
-    const textJson = await streamToString(req.body as unknown as Readable);
-    const parsedObject = JSON.parse(textJson);
-    const text = parsedObject.text;
-    const modifiedPrompt = parsedObject.prompt;
-
-    // Fetch the audit prompt template
-    const auditPromptResponse = modifiedPrompt || await fs.readFile(path.join(process.cwd(), 'prompts', 'audit-prompt.md'), 'utf8');
 
     // Insert the code text into the audit prompt
-    const auditPrompt = auditPromptResponse.replace('```\n\n```', `\`\`\`\n${text}\n\`\`\``);
+    const auditPrompt = prompt.replace("```\n\n```", `\`\`\`\n${text}\n\`\`\``);
+
+    const inputUse = {
+      ...input,
+      prompt: auditPrompt,
+    };
 
     try {
-        // Call the replicate model function with the generated audit prompt
-        const replicateResponse = await callReplicateModel(auditPrompt);
+      const iterator = replicate.stream("meta/meta-llama-3-70b-instruct", {
+        input: inputUse,
+      });
+      const stream = iteratorToStream(iterator);
 
-        // If the call is successful, return the result
-        console.log(replicateResponse);
-        if (replicateResponse) {
-            return NextResponse.json(JSON.stringify(replicateResponse), {
-                headers: {
-                    'Access-Control-Allow-Origin': 'app.certaik.xyz', // Replace with your client domain
-                },
-            });
-        } else {
-            console.error("Model call failed with response:", replicateResponse);
-            return NextResponse.json({ error: "Failed to get a valid response from the model" }, { status: 500 });
-        }
+      return new Response(stream, {
+        headers: {
+          "Access-Control-Allow-Origin": "app.certaik.xyz", // Replace with your client domain
+        },
+      });
     } catch (error) {
-        console.error("Error during model call:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+      console.error("Error during model call:", error);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
   }
 }

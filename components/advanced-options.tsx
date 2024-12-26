@@ -23,14 +23,14 @@ const AdvancedOptionsModal: React.FC<AdvancedOptionsModalProps> = ({ setPromptTe
 
   return (
     <div
-      className="fixed inset-0 z-20 bg-gray-800 bg-opacity-70 flex justify-center items-center"
+      className="fixed inset-0 bg-gray-800 bg-opacity-70 flex justify-center items-center z-100"
       onClick={onClose}
     >
       <div
-        className="bg-[#0a0a0a] p-6 rounded-lg max-w-4xl w-full h-[90vh]"
+        className="bg-[#0a0a0a] p-6 rounded-lg max-w-4xl w-full h-[90vh] z-20"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between mb-4">
+        <div className="flex justify-between mb-4 z-20">
           <img src="/logo.svg" alt="Logo" className="h-16 w-auto" />
         </div>
         <button
@@ -53,19 +53,17 @@ const AdvancedOptionsModal: React.FC<AdvancedOptionsModalProps> = ({ setPromptTe
             value={promptText}
           />
         </div>
-        <div className="flex justify-center">
-          <p className="text-xs text-gray-400 mb-2 max-w-[600px] text-center">
-            Warning: Modifying the prompt will change how the audit outputs in potentially unexpected ways. 
-            Ensure that you leave the <code>``` ```</code> at the bottom of the prompt for the AI to have a place to insert the code.
-          </p>
-        </div>
-        <div className="flex">
+        <div className="flex justify-center items-center">
           <button
             className="text-white py-2 px-4 rounded bg-gradient-to-r from-green-500 to-green-700"
             onClick={onClose}
           >
             Save and Close
           </button>
+          <p className="text-xs text-gray-400 mb-0 max-w-[400px] text-center mr-4">
+            Warning: Modifying the prompt will change how the audit outputs in potentially unexpected ways. 
+            Ensure that you leave the <code>``` ```</code> at the bottom of the prompt for the AI to have a place to insert the code.
+          </p>
         </div>
       </div>
     </div>
