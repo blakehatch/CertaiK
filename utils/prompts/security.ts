@@ -81,7 +81,5 @@ You are tasked with generating a smart contract audit report. Please adhere stri
 ********************************************************************
 # Code to be audited is found below:
 
-\`\`\`
-
-\`\`\`
+<{prompt}>
 `;

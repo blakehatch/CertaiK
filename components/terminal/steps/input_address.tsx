@@ -47,9 +47,11 @@ export function AddressStep({
       return;
     }
 
+    setInput("");
     setLoading(true);
+    const address = encodeURIComponent(input);
 
-    fetch(`/api/scan?address=${encodeURIComponent(input)}`)
+    fetch(`/api/scan/${address}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Bad request");
@@ -85,7 +87,6 @@ export function AddressStep({
         ]);
       })
       .finally(() => {
-        setInput("");
         setLoading(false);
       });
   };

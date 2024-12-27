@@ -91,7 +91,9 @@ export function ResultsStep({
     <>
       <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
         {streamedAudit && (
-          <ReactMarkdown className="overflow-scroll no-scrollbar">{streamedAudit}</ReactMarkdown>
+          <ReactMarkdown className="overflow-scroll no-scrollbar *:whitespace-pre-wrap">
+            {streamedAudit}
+          </ReactMarkdown>
         )}
       </div>
       <TerminalInputBar

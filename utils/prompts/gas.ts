@@ -133,7 +133,5 @@ Enforce these principles to ensure efficient gas usage in smart contracts.
 ********************************************************************
 # Code to be audited is found below:
 
-\`\`\`
-
-\`\`\`
+<{prompt}>
 `;

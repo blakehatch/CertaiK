@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 interface InputBarProps {
   value: string;
@@ -18,10 +18,17 @@ const TerminalInputBar: React.FC<InputBarProps> = ({
   overrideLoading,
   placeholder,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!disabled && !overrideLoading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [disabled, overrideLoading]);
   return (
     <form onSubmit={onSubmit} className="mt-4 flex items-center relative">
       <span className="text-green-400 mr-2">{">"}</span>
       <input
+        ref={inputRef}
         autoFocus={true}
         type="text"
         value={value}
