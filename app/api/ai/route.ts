@@ -1,40 +1,26 @@
 // Import the necessary modules
+import api from "@/lib/api";
 import { NextResponse } from "next/server";
-import Replicate from "replicate";
-
-const replicate = new Replicate({
-  auth: process.env["REPLICATE_API_KEY"],
-});
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 export const dynamic = "force-dynamic";
 
-function iteratorToStream(iterator: any) {
+const streamer = (stream: any) => {
+  const decoder = new TextDecoder();
   return new ReadableStream({
-    async pull(controller) {
-      const { value, done } = await iterator.next();
-      // console.log(value, done);
-      if (done) {
+    async start(controller) {
+      stream.on("data", (chunk: any) => {
+        const text = decoder.decode(chunk, { stream: true });
+        controller.enqueue(text);
+      });
+      stream.on("end", () => {
         controller.close();
-      } else {
-        controller.enqueue(value.toString());
-      }
+      });
+      stream.on("error", () => {
+        controller.close();
+      });
     },
   });
-}
-
-const input = {
-  min_tokens: 512,
-  max_tokens: 3000,
-  system_prompt: "You are a helpful assistant, specializing in smart contract auditing",
-  prompt_template: `
-    <|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-    {system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-    {prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-
-  `,
 };
 
 export async function POST(request: Request) {
@@ -45,23 +31,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Must provide input" }, { status: 400 });
     }
 
-    // Insert the code text into the audit prompt
-    const auditPrompt = prompt.replace("```\n\n```", `\`\`\`\n${text}\n\`\`\``);
-
-    const inputUse = {
-      ...input,
-      prompt: auditPrompt,
-    };
-
     try {
-      const iterator = replicate.stream("meta/meta-llama-3-70b-instruct", {
-        input: inputUse,
-      });
-      const stream = iteratorToStream(iterator);
+      const response = await api.post(
+        "/ai/eval",
+        {
+          contract: text,
+          prompt,
+        },
+        {
+          responseType: "stream",
+        },
+      );
+
+      if (!response.data) {
+        throw new Error("Response body is not readable");
+      }
+
+      const stream = streamer(response.data);
 
       return new Response(stream, {
         headers: {
           "Access-Control-Allow-Origin": "app.certaik.xyz", // Replace with your client domain
+          "Content-Type": "application/octet-stream",
         },
       });
     } catch (error) {

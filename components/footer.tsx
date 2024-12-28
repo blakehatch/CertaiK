@@ -38,11 +38,7 @@ const Footer: React.FC = () => {
         {!!gasPrice ? <span>{gasPrice.toFixed(4)} Gwei</span> : <span>loading...</span>}
         <div className="flex items-center mt-2 z-0">
           <span className="text-sm text-cyan-500 mr-2 z-0">Gas is cheap</span>
-          <Progress
-            value={gasPrice}
-            className="bg-gray-900 w-full"
-            indicatorClassName="bg-gradient-to-r from-cyan-50 to-cyan-500 z-0"
-          />
+          <Progress value={gasPrice} />
           <span className="text-sm text-red-500 ml-2 z-0">Gas is expensive</span>
         </div>
       </div>

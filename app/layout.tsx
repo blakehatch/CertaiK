@@ -7,8 +7,24 @@ import "./globals.css";
 const figtree = Figtree({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://app.certaik.xyz"),
   title: "CertaiK",
   description: "AI Agent Smart Contract Auditor",
+  openGraph: {
+    title: "CertaiK",
+    description: "AI Agent Smart Contract Auditor",
+    type: "website",
+    url: "https://app.certaik.xyz",
+    siteName: "CertaiK",
+    locale: "en_US",
+  },
+  twitter: {
+    title: "CertaiK",
+    description: "AI Agent Smart Contract Auditor",
+    card: "summary_large_image",
+    site: "@CertaiK_Agent",
+    creator: "@CertaiK_Agent",
+  },
 };
 
 export default function RootLayout({
