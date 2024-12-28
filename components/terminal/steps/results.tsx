@@ -17,6 +17,7 @@ export function ResultsStep({
   state,
 }: TerminalProps) {
   const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [streamedAudit, setStreamedAudit] = useState("");
 
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -78,6 +79,7 @@ export function ResultsStep({
       fetchStream();
     } catch (error) {
       console.log(error);
+      setIsError(true);
     }
   }, [state]);
 
@@ -91,9 +93,14 @@ export function ResultsStep({
     <>
       <div ref={terminalRef} className="flex-1 overflow-y-auto font-mono text-sm no-scrollbar">
         {streamedAudit && (
-          <ReactMarkdown className="overflow-scroll no-scrollbar *:whitespace-pre-wrap">
+          <ReactMarkdown className="overflow-scroll no-scrollbar markdown">
             {streamedAudit}
           </ReactMarkdown>
+        )}
+        {isError && (
+          <div className="mb-2 leading-relaxed whitespace-pre-wrap text-red-400">
+            Something went wrong, try again
+          </div>
         )}
       </div>
       <TerminalInputBar
