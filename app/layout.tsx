@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     description: "AI Agent Smart Contract Auditor",
     type: "website",
     url: "https://app.certaik.xyz",
+    siteName: "CertaiK",
     locale: "en_US",
   },
   twitter: {
